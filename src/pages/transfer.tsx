@@ -1,12 +1,20 @@
 import React, { useState } from 'react';
-
+import { CONTRACT_ABI, CONTRACT_ADDRESS } from '../constant/constant';
+import { useWriteContract } from "wagmi";
 
 const Transfer = () => {
   const [recipient, setRecipient] = useState('');
   const [amount, setAmount] = useState('');
-
-  const handleTransfer = async () => {
+  const { writeContract, error:errorOne, isError, isPending ,isSuccess} = useWriteContract();
     
+  const handleTransfer = async () => {
+    const result = writeContract({
+      abi: CONTRACT_ABI,
+      address: CONTRACT_ADDRESS,
+      functionName: "transfer",
+      args: [recipient,amount],
+    });
+
   };
 
   return (
@@ -40,7 +48,7 @@ const Transfer = () => {
           onClick={handleTransfer}
           className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 font-semibold focus:outline-none focus:ring-2 focus:ring-blue-500"
         >
-          Transfer Tokens
+         {isPending ? "Transfering" : "Transfer Tokens"} 
         </button>
       </div>
     </div>

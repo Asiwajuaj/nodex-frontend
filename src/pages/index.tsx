@@ -1,18 +1,31 @@
 import { useState } from 'react';
-import { ConnectButton } from '@rainbow-me/rainbowkit';
 import type { NextPage } from 'next';
 import Head from 'next/head';
+import { useReadContract } from 'wagmi';
+import { CONTRACT_ABI, CONTRACT_ADDRESS } from '../constant/constant';
+
+// Define a type for the token details return value
+type TokenDetails = [string, string, string]; // [name, symbol, totalSupply]
 
 const Home: NextPage = () => {
-  const [name, setName] = useState('');
-  const [symbol, setSymbol] = useState('');
+  const { data, error, isLoading } = useReadContract({
+    abi: CONTRACT_ABI,
+    address: CONTRACT_ADDRESS,
+    functionName: 'getTokenDetails',
+  });
 
-  // Function to handle form submission
-  const handleSubmit = async (event: React.FormEvent) => {
-    event.preventDefault();
-    console.log("Token Name:", name);
-    console.log("Token Symbol:", symbol);
-  };
+  // Cast the data to the TokenDetails type
+  const tokenDetails = data as TokenDetails | undefined;
+
+  if (isLoading) {
+    return <p>Loading...</p>;
+  }
+
+  if (error) {
+    return <p>Error: {error.message}</p>;
+  }
+
+  console.log(tokenDetails, 'tokenDetails');
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-gray-100">
@@ -22,41 +35,30 @@ const Home: NextPage = () => {
         <link href="/favicon.ico" rel="icon" />
       </Head>
 
-     
-
       <div className="w-full max-w-md p-8 bg-white rounded-lg shadow-md">
-        <h2 className="text-2xl font-semibold text-center text-gray-800 mb-6">Create ERC-20 Token</h2>
-        
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <h2 className="text-2xl font-semibold text-center text-gray-800 mb-6">Token Details</h2>
+        <div className="space-y-4">
           <div>
             <label className="block text-sm font-medium text-gray-700">Token Name:</label>
-            <input
-              type="text"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              required
-              className="mt-1 w-full p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
-            />
+            <p className="mt-1 p-2 border border-gray-300 rounded-md bg-gray-50">
+              {tokenDetails ? tokenDetails[1] : 'N/A'}
+            </p>
           </div>
 
           <div>
             <label className="block text-sm font-medium text-gray-700">Token Symbol:</label>
-            <input
-              type="text"
-              value={symbol}
-              onChange={(e) => setSymbol(e.target.value)}
-              required
-              className="mt-1 w-full p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
-            />
+            <p className="mt-1 p-2 border border-gray-300 rounded-md bg-gray-50">
+              {tokenDetails ? tokenDetails[0] : 'N/A'}
+            </p>
           </div>
 
-          <button
-            type="submit"
-            className="w-full py-2 px-4 bg-blue-600 text-white font-semibold rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
-          >
-            Submit
-          </button>
-        </form>
+          <div>
+            <label className="block text-sm font-medium text-gray-700">Total Supply:</label>
+            <p className="mt-1 p-2 border border-gray-300 rounded-md bg-gray-50">
+              {tokenDetails ? Number(tokenDetails[2]).toLocaleString() : 'N/A'}
+            </p>
+          </div>
+        </div>
       </div>
     </div>
   );

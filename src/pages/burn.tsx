@@ -1,10 +1,17 @@
 import React, { useState } from 'react';
-
+import { CONTRACT_ABI, CONTRACT_ADDRESS } from '../constant/constant';
+import { useWriteContract } from "wagmi";
 const Burn = () => {
   const [amount, setAmount] = useState('');
-
+  const { writeContract, error:errorOne, isError, isPending ,isSuccess} = useWriteContract();
+    
   const handleBurn = async () => {
-   
+    const result = writeContract({
+      abi: CONTRACT_ABI,
+      address: CONTRACT_ADDRESS,
+      functionName: "burn",
+      args: [amount],
+    });
   };
 
   return (
@@ -27,7 +34,7 @@ const Burn = () => {
           onClick={handleBurn}
           className="w-full bg-red-600 text-white py-2 px-4 rounded-md hover:bg-red-700 font-semibold focus:outline-none focus:ring-2 focus:ring-red-500"
         >
-          Burn Tokens
+        {isPending ? "Burning....." : "Burn Tokens"}  
         </button>
       </div>
     </div>
