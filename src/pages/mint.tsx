@@ -1,20 +1,21 @@
 import React, { useState } from 'react';
-
+import { CONTRACT_ABI, CONTRACT_ADDRESS } from '../constant/constant';
+import { useWriteContract } from "wagmi";
 const Mint = () => {
     const [address, setAddress] = useState('');
     const [amount, setAmount] = useState('');
-  
+    const { writeContract, error:errorOne, isError, isPending ,isSuccess} = useWriteContract();
+
     const handleMint = async () => {
-      try {
-        // Placeholder for the minting logic using ethers.js
-        console.log(`Minting ${amount} tokens to address ${address}`);
-        // Call your mint function here
-        // Example: contract.mint(address, ethers.utils.parseUnits(amount, 18));
-        alert('Minting successful!');
-      } catch (error) {
-        console.error(error);
-        alert('Minting failed.');
-      }
+      console.log(address,amount);
+      
+      const result = writeContract({
+        abi: CONTRACT_ABI,
+        address: CONTRACT_ADDRESS,
+        functionName: "mint",
+        args: [address,amount],
+      });
+
     };
   
     return (
@@ -48,7 +49,7 @@ const Mint = () => {
             onClick={handleMint}
             className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 font-semibold focus:outline-none focus:ring-2 focus:ring-blue-500"
           >
-            Mint Tokens
+           {isPending ? "Minting" : "Mint Tokens"}
           </button>
         </div>
       </div>
